@@ -32,7 +32,7 @@ public class App{
 
         }
 
-        public synchronized void retirar(){
+        public void retirar(){
             synchronized(lock){
                 if(qtdeCaixas > 0){
                     qtdeCaixas--;
