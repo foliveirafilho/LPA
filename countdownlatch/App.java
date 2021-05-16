@@ -16,36 +16,44 @@ class App {
         }
 
         public void run(){
-            System.out.println("Thread " + id + " iniciada.");
-            System.out.println("Contador antes de decrementar: " + latch.getCount());
+            synchronized(latch){
+                boolean liberou = false;
 
-            try {
-                Thread.sleep(1000);
+                System.out.println("Thread " + id + " iniciada.");
+                System.out.println("Contador antes de decrementar: " + latch.getCount());
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                if(latch.getCount() == 1)
+                    liberou = true;
+
+                try {
+                    Thread.sleep(1000);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+
+                }
+                
+                latch.countDown();
+
+                System.out.println("Thread " + id + " finalizada.");
+                System.out.println("Contador depois de decrementar: " + latch.getCount());
+
+                if(liberou)
+                    System.out.println("Thread " + id + " foi responsável por abrir o latch.");
 
             }
-                
-            latch.countDown();
-
-            System.out.println("Thread " + id + " finalizada.");
-            System.out.println("Contador depois de decrementar: " + latch.getCount());
-
-            if(latch.getCount() == 0)
-                System.out.println("Thread " + id + " foi responsável por abrir o latch.");
 
         }
 
     }
 
     public static void main(String[] args){
-        System.out.println("Iniciando " + TAMANHO + " threads...");
+        System.out.println("Iniciando " + 2 * TAMANHO + " threads...");
 
         CountDownLatch latch = new CountDownLatch(TAMANHO);
         ExecutorService executorService = Executors.newFixedThreadPool(2 * TAMANHO);
 
-        for(int i = 0; i < TAMANHO; i++)
+        for(int i = 0; i < (2 * TAMANHO); i++)
             executorService.submit(new Processo(latch, i + 1));
 
         executorService.shutdown();
@@ -58,7 +66,7 @@ class App {
 
         }
 
-        System.out.println("As" + TAMANHO + " foram finalizadas com sucesso!");
+        System.out.println("As " + (2 * TAMANHO) + " threads foram finalizadas com sucesso!");
 
     }
 
